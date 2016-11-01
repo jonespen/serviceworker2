@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>CAT CHAT!!!</title>
+	<link rel="manifest" href="manifest.json" />
+	<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+	<div id="messages">LOADING MESSAGES FROM SPACE 🚀</div>
+	<form id="form">
+		<textarea id="textarea"></textarea>
+		<button type="submit">SEND CAT</button>
+	</form>
+	<!-- <button id="subscribe" type="button">SUBSCRIBE</button> -->
+	<script>
+		let reg;
+		if ('serviceWorker' in navigator) {
+		  console.log('Service Worker is supported');
+		  navigator.serviceWorker.register('service-worker.js').then(function() {
+		    return navigator.serviceWorker.ready;
+		  }).then(function(serviceWorkerRegistration) {
+		    reg = serviceWorkerRegistration;
+		    console.log('Service Worker is ready :^)', reg);
+		  }).catch(function(error) {
+		    console.log('Service Worker Error :^(', error);
+		  });
+		}
+	</script>
+	<script src="/chat.js"></script>
+	<!-- <script src="/subscribe.js"></script> -->
+</body>
+</html>
