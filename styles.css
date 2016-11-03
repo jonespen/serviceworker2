@@ -1,3 +1,8 @@
+body, html {
+	height: 100%;
+}
+
 body {
-	background: url('/images/cat.jpg');
+	background: url('/images/cat.jpg') no-repeat;
+	background-size: cover;
 }

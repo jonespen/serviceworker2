@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>CAT CHAT!!!</title>
+	<title>CHAT!!!</title>
 	<link rel="manifest" href="manifest.json" />
 	<link rel="stylesheet" href="styles.css" />
 </head>
@@ -9,9 +9,11 @@
 	<div id="messages">LOADING MESSAGES FROM SPACE 🚀</div>
 	<form id="form">
 		<textarea id="textarea"></textarea>
-		<button type="submit">SEND CAT</button>
+		<button type="submit">SEND</button>
 	</form>
 	<!-- <button id="subscribe" type="button">SUBSCRIBE</button> -->
+	<!-- #3: Sync -->
+	<script src="idb-keyval-min.js"></script>
 	<script>
 		let reg;
 		if ('serviceWorker' in navigator) {
@@ -27,6 +29,9 @@
 		}
 	</script>
 	<script src="/chat.js"></script>
+	<!-- #2: Push -->
 	<!-- <script src="/subscribe.js"></script> -->
+
+
 </body>
 </html>

@@ -16,7 +16,6 @@ const loadMessages = () => {
 }
 
 const updateMessages = () => {
-	console.log(messages);
 	messagesEl.innerHTML = `
 		<ul>
 			${Object.keys(messages).map((key) => `<li>${messages[key].value}</li>`).join('')}
@@ -40,10 +39,14 @@ const deleteFirebaseCache = () => {
 	}
 }
 
+const onMessageSave = (newObject, data) => {
+	messages[newObject.name] = data;
+	updateMessages();
+}
+
 const init = () => {
 	// load messages from firebase, which also loads them
 	loadMessages();
-
 	// listen for submits on form
 	const formEl = document.getElementById('form');
 	const textareaEl = document.getElementById('textarea');
@@ -51,24 +54,39 @@ const init = () => {
 		e.preventDefault();
 		if(textareaEl.value){
 			const data = { value: textareaEl.value, timestamp: Date.now() };
-			fetch(`${firebaseUrl}/messages.json`, {
-				method: 'POST',
-				headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-				body: JSON.stringify(data)
-			})
-			.then((response) => response.json())
-			.then((newObject) => {
-				messages[newObject.name] = data;
-				updateMessages();
 
-				// Delete cached firebase response
-				//deleteFirebaseCache();
-			});
+			if (reg && reg.sync) {
+				console.log('Browser support sw sync 🤗');
+				idbKeyval.set('message', data).then(() => {
+					idbKeyval.get('message').then((msg) => console.log(msg));
+					reg.sync.register('postMessage').then(() => console.log('postMessage registered'));
+				});
+			} else {
+				console.log('Browser sync not supported 😭');
+				fetch(firebaseMessageUrl, {
+					method: 'POST',
+					headers: {
+	          'Accept': 'application/json',
+	          'Content-Type': 'application/json',
+	        },
+					body: JSON.stringify(data)
+				})
+				.then((response) => response.json())
+				.then((id) => onMessageSave(id, data));
+			}
 		}
 	}, false);
 }
 
+
 init();
+
+// #3: Sync
+function onServiceWorkerMessage(message){
+	console.log('onServiceWorkerMessage', message);
+	onMessageSave(message);
+}
+if (navigator.serviceWorker) {
+  navigator.serviceWorker.addEventListener('message', (event) => onServiceWorkerMessage(event.data));
+}
+
