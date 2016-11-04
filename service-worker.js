@@ -1,6 +1,7 @@
+// #3: Sync
 importScripts('idb-keyval-min.js');
 
-// Version 0.3
+// Version 1.0
 
 // #1: Cache files for offline support
 const dataCacheName = 'cat-chat-v1';
@@ -14,57 +15,57 @@ const filesToCache = [
   '/subscribe.js',
   '/chat.js',
   '/idb-keyval-min.js',
-  '/images/cat.jpg'
+  '/images/unsplash.jpeg'
 ];
 
-// self.addEventListener('install', function(e) {
-//   console.log('[ServiceWorker] Install');
-//   e.waitUntil(
-//     caches.open(dataCacheName).then(function(cache) {
-//       console.log('[ServiceWorker] Caching app shell');
-//       return cache.addAll(filesToCache);
-//     })
-//   );
-// });
+self.addEventListener('install', function(e) {
+  console.log('[ServiceWorker] Install');
+  e.waitUntil(
+    caches.open(dataCacheName).then(function(cache) {
+      console.log('[ServiceWorker] Caching app shell');
+      return cache.addAll(filesToCache);
+    })
+  );
+});
 
-// self.addEventListener('activate', function(e) {
-//   console.log('[ServiceWorker] Activate');
-//   e.waitUntil(
-//     caches.keys().then(function(keyList) {
-//       return Promise.all(keyList.map(function(key) {
-//         console.log('[ServiceWorker] Removing old cache');
-//         if (key !== dataCacheName) {
-//           return caches.delete(key);
-//         }
-//       }));
-//     })
-//   );
-// });
-
-// self.addEventListener('fetch', function(event) {
-//   console.log('[ServiceWorker] Fetch', event.request.url);
-//   // If request includes firebase url and not cached, put in cache and return response
-//   // Not recommended for frequently updated data, use sw-toolbox for more control
-//   if (event.request.url.indexOf(firebaseUrl) === 0) {
-//     event.respondWith(
-//     	caches.open(dataCacheName).then(function(cache) {
-// 	      return cache.match(event.request).then(function (response) {
-// 	        return response || fetch(event.request).then(function(response) {
-// 	          cache.put(event.request, response.clone());
-//             console.log('[ServiceWorker] Fetched&Cached Data');
-// 	          return response;
-// 	        });
-// 	      });
-// 	    })
-//     );
-//   } else {
-//     event.respondWith(
-//       caches.match(event.request).then(function(response) {
-//         return response || fetch(event.request);
-//       })
-//     );
-//   }
-// });
+self.addEventListener('activate', function(e) {
+  console.log('[ServiceWorker] Activate');
+  e.waitUntil(
+    caches.keys().then(function(keyList) {
+      return Promise.all(keyList.map(function(key) {
+        console.log('[ServiceWorker] Removing old cache');
+        if (key !== dataCacheName) {
+          return caches.delete(key);
+        }
+      }));
+    })
+  );
+});
+//
+self.addEventListener('fetch', function(event) {
+  console.log('[ServiceWorker] Fetch', event.request.url);
+  // If request includes firebase url and not cached, put in cache and return response
+  // Not recommended for frequently updated data, use sw-toolbox for more control
+  if (event.request.url.indexOf(firebaseUrl) === 0) {
+    event.respondWith(
+    	caches.open(dataCacheName).then(function(cache) {
+	      return cache.match(event.request).then(function (response) {
+	        return response || fetch(event.request).then(function(response) {
+	          cache.put(event.request, response.clone());
+            console.log('[ServiceWorker] Fetched&Cached Data');
+	          return response;
+	        });
+	      });
+	    })
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request).then(function(response) {
+        return response || fetch(event.request);
+      })
+    );
+  }
+});
 
 // #2: Add push support
 self.addEventListener('push', function(event) {
@@ -74,7 +75,7 @@ self.addEventListener('push', function(event) {
 
   // You can't send any data with a push message
   event.waitUntil(
-  	fetch(`${firebaseUrl}/messages.json`)
+  	fetch(firebaseMessageUrl)
   		.then((response) => response.json())
   		.then((json) => {
   			// Get the last (newest) message
@@ -143,7 +144,7 @@ function sendMessage() {
 				})
 				.then((res) => res.json())
 				.then((json) => {
-					broadcast({ [json.name]: message });
+					broadcast({ name: json.name, message });
 				});
 			} else {
 				return Promise.resolve();
@@ -157,5 +158,3 @@ self.addEventListener('sync', function (event) {
     event.waitUntil(sendMessage());
   }
 });
-
-

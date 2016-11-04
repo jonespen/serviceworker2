@@ -6,31 +6,38 @@
 	<link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-	<div id="messages">LOADING MESSAGES FROM SPACE 🚀</div>
-	<form id="form">
-		<textarea id="textarea"></textarea>
-		<button type="submit">SEND</button>
-	</form>
-	<!-- <button id="subscribe" type="button">SUBSCRIBE</button> -->
-	<!-- #3: Sync -->
+	<div class="container">
+		<div id="messages">LOADING MESSAGES FROM SPACE 🚀</div>
+		<form id="form">
+			<textarea id="textarea" rows="4"></textarea>
+			<button type="submit">SEND 💨</button>
+		</form>
+		<!-- #3: Sync -->
+		<button id="subscribe" type="button">SUBSCRIBE</button>
+	</div>
 	<script src="idb-keyval-min.js"></script>
 	<script>
 		let reg;
-		if ('serviceWorker' in navigator) {
-		  console.log('Service Worker is supported');
+		let sub;
+		let enableSw = true;
+		let enableSub = true;
+		let enablePush = true;
+
+		if (enableSw && 'serviceWorker' in navigator) {
+		  console.log('Service Worker 👍 ');
 		  navigator.serviceWorker.register('service-worker.js').then(function() {
 		    return navigator.serviceWorker.ready;
 		  }).then(function(serviceWorkerRegistration) {
 		    reg = serviceWorkerRegistration;
-		    console.log('Service Worker is ready :^)', reg);
+		    console.log('Service Worker is ready 👋', reg);
 		  }).catch(function(error) {
-		    console.log('Service Worker Error :^(', error);
+		    console.log('Service Worker Error ⚠️', error);
 		  });
 		}
 	</script>
 	<script src="/chat.js"></script>
 	<!-- #2: Push -->
-	<!-- <script src="/subscribe.js"></script> -->
+	<script src="/subscribe.js"></script>
 
 
 </body>

@@ -2,7 +2,11 @@
 
 const subscribeButtonEl = document.getElementById('subscribe');
 
-if(subscribeButtonEl){
+if(!enableSub){
+	subscribeButtonEl.style.display = 'none';
+}
+
+if(enableSub && subscribeButtonEl){
 	let isSubscribed = false;
 
 	subscribeButtonEl.addEventListener('click', function() {
@@ -17,7 +21,9 @@ if(subscribeButtonEl){
 	  reg.pushManager.subscribe({userVisibleOnly: true}).
 	  then(function(pushSubscription) {
 	    sub = pushSubscription;
-	    console.log('Subscribed! Endpoint:', sub.endpoint);
+			let endpointParts = sub.endpoint.split('/')
+    	let registrationId = endpointParts[endpointParts.length - 1]
+	    console.log('Subscribed! registrationId:', registrationId);
 	    subscribeButtonEl.textContent = 'Unsubscribe';
 	    isSubscribed = true;
 	  });

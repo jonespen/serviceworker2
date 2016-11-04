@@ -17,9 +17,9 @@ const loadMessages = () => {
 
 const updateMessages = () => {
 	messagesEl.innerHTML = `
-		<ul>
+		<ol>
 			${Object.keys(messages).map((key) => `<li>${messages[key].value}</li>`).join('')}
-		</ul>`
+		</ol>`
 }
 
 const deleteFirebaseCache = () => {
@@ -39,8 +39,9 @@ const deleteFirebaseCache = () => {
 	}
 }
 
-const onMessageSave = (newObject, data) => {
-	messages[newObject.name] = data;
+const onMessageSave = (message) => {
+  console.log('onMessageSave', message);
+	messages = Object.assign(messages, message)
 	updateMessages();
 }
 
@@ -54,15 +55,13 @@ const init = () => {
 		e.preventDefault();
 		if(textareaEl.value){
 			const data = { value: textareaEl.value, timestamp: Date.now() };
-
-			if (reg && reg.sync) {
-				console.log('Browser support sw sync 🤗');
+			if (enablePush && reg && reg.sync) {
+				console.log('Browser support sync 🤗');
 				idbKeyval.set('message', data).then(() => {
-					idbKeyval.get('message').then((msg) => console.log(msg));
 					reg.sync.register('postMessage').then(() => console.log('postMessage registered'));
 				});
 			} else {
-				console.log('Browser sync not supported 😭');
+				console.log('Browser sync not or enabled supported 😭');
 				fetch(firebaseMessageUrl, {
 					method: 'POST',
 					headers: {
@@ -72,7 +71,7 @@ const init = () => {
 					body: JSON.stringify(data)
 				})
 				.then((response) => response.json())
-				.then((id) => onMessageSave(id, data));
+				.then((id) => onMessageSave({ [id.name]: data }));
 			}
 		}
 	}, false);
@@ -82,11 +81,9 @@ const init = () => {
 init();
 
 // #3: Sync
-function onServiceWorkerMessage(message){
-	console.log('onServiceWorkerMessage', message);
-	onMessageSave(message);
+function onServiceWorkerMessage(data){
+	onMessageSave(data);
 }
 if (navigator.serviceWorker) {
   navigator.serviceWorker.addEventListener('message', (event) => onServiceWorkerMessage(event.data));
 }
-
